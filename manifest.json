@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "AFK Alert",
+  "description": "Away From Keyboard Alert for Google meet",
+  "version": "1.0",
+  "action": {
+    "default_popup": "src/index.html",
+    "default_icon": "src/icons/coffee-cup.png"
+  },
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://meet.google.com/*"],
+      "js": ["src/contentScript.js"]
+    }
+  ],
+  "permissions": ["tabs", "storage"],
+  "host_permissions": ["https://meet.google.com/*"]
+}
