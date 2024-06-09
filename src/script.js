@@ -17,17 +17,18 @@ startBtn.addEventListener("click", () => {
 })
 
 resetBtn.addEventListener("click", () => {
-  chrome.storage.local.set({ isRunning: false, timer: 3600 }, () => {
+  chrome.storage.local.set({ isRunning: false, remainingTime: 3600 }, () => {
     startBtn.textContent = "Start Timer"
   })
+  chrome.action.setBadgeText({ text: "" })
 })
 
 updateTimerContainer()
 setInterval(updateTimerContainer, 1000)
 
 function updateTimerContainer() {
-  chrome.storage.local.get(["timer", "isGoogleMeetLink"], (res) => {
-    let remainingTime = res["timer"]
+  chrome.storage.local.get(["remainingTime", "isGoogleMeetLink"], (res) => {
+    let remainingTime = res["remainingTime"]
     const [hours, minutes, seconds] = updateTime(remainingTime)
     timerContainer.innerHTML = hours + "h " + minutes + "m " + seconds + "s"
 
