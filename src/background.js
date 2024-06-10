@@ -69,13 +69,32 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   } else if (alarm.name === "start-countdown") {
     chrome.storage.local.get(["remainingTime", "isRunning"], (res) => {
       if (res.isRunning) {
-        let remainingTime = res.remainingTime - 1
-        chrome.storage.local.set({ remainingTime })
-        const remainingHours = Math.floor(remainingTime / 3600)
-        const remainingMinutes = Math.floor((remainingTime / 60) % 60)
-        chrome.action.setBadgeText({
-          text: `${remainingHours}:${remainingMinutes}`,
-        })
+        if (res.remainingTime == 0) {
+          let notificationMessages = [
+            "404 Break Not Found!",
+            "Compiling Coffee... BRB",
+            "Code Reviews Later!",
+            "API Throttled: Chill for a Bit",
+          ]
+          let randomIdx = Math.floor(
+            Math.random() * notificationMessages.length
+          )
+          this.registration.showNotification(notificationMessages[randomIdx])
+          chrome.storage.local.set({ remainingTime: 3600, isRunning: false })
+          chrome.action.setBadgeText({ text: "" })
+        } else {
+          let remainingTime = res.remainingTime - 1
+          chrome.storage.local.set({ remainingTime })
+          const remainingHours = Math.floor(remainingTime / 3600)
+          const remainingMinutes = Math.floor((remainingTime / 60) % 60)
+          const remainingSeconds = Math.floor(remainingTime % 60)
+
+          let badgeText = `${remainingHours}:${remainingMinutes}`
+          if (remainingHours === 0 && remainingMinutes === 0) {
+            badgeText = remainingSeconds.toString()
+          }
+          chrome.action.setBadgeText({ text: badgeText })
+        }
       }
     })
   }

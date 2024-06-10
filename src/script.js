@@ -5,14 +5,9 @@ const timerContainer = document.querySelector("#timer-container")
 
 startBtn.addEventListener("click", () => {
   chrome.storage.local.get(["isRunning"], (res) => {
-    chrome.storage.local.set(
-      {
-        isRunning: !res.isRunning,
-      },
-      () => {
-        startBtn.textContent = !res.isRunning ? "Pause Timer" : "Start Timer"
-      }
-    )
+    chrome.storage.local.set({ isRunning: !res.isRunning }, () => {
+      startBtn.textContent = !res.isRunning ? "Pause Timer" : "Start Timer"
+    })
   })
 })
 
