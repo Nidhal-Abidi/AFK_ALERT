@@ -27,7 +27,7 @@ function updatePopup() {
 }
 
 function updateTimerContainer() {
-  chrome.storage.local.get(["remainingTime", "isGoogleMeetLink"], (res) => {
+  chrome.storage.local.get(["remainingTime"], (res) => {
     let remainingTime = res["remainingTime"]
     const [hours, minutes, seconds] = updateTime(remainingTime)
     timerContainer.innerHTML = hours + "h " + minutes + "m " + seconds + "s"
@@ -35,11 +35,11 @@ function updateTimerContainer() {
 }
 
 function updateTextDescription() {
-  chrome.storage.local.get(["isGoogleMeetLink", "automaticTimerIn"], (res) => {
+  chrome.storage.local.get(["isGoogleMeetLink", "autoTimerStartsIn"], (res) => {
     if (res["isGoogleMeetLink"]) {
       let text =
-        res["automaticTimerIn"] != undefined
-          ? `Timer starts automatically in ${res["automaticTimerIn"]}`
+        res["autoTimerStartsIn"] != undefined
+          ? `Timer starts automatically in ${res["autoTimerStartsIn"]}`
           : ""
 
       description.innerHTML = "I hope you have a productive meeting!!\n" + text
