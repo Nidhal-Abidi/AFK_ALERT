@@ -32,7 +32,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   }
 })
 
-//createAlarm("start-countdown", 1 / 60)
+createAlarm("start-countdown", 1 / 60)
 
 chrome.alarms.onAlarm.addListener((alarm) => {
   /* if (!hasOpenGoogleMeetTab() && hadOpenGoogleMeetTab()) {
@@ -136,8 +136,8 @@ function initializeTimer() {
       )
         return
       saveToLocalStorage({
-        remainingTime: "remainingTime" in res ? res.remainingTime : 3600,
         isRunning: "isRunning" in res ? res.isRunning : false,
+        remainingTime: "remainingTime" in res ? res.remainingTime : 3600,
         isGoogleMeetLink:
           "isGoogleMeetLink" in res ? res.isGoogleMeetLink : false,
         autoTimerStartsIn:
@@ -146,3 +146,11 @@ function initializeTimer() {
     }
   )
 }
+
+/*
+Meaning of values stored in local storage:
+  1) isGoogleMeetLink: user opened a google meeting tab.
+  2) autoTimerStartsIn: 30s countdown for automatic timer.
+  3) remainingTime: 1h countdown before taking a break.
+  4) isRunning: signifies that the google meet session is ongoing now.
+*/

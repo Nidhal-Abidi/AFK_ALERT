@@ -5,25 +5,28 @@ const timerContainer = document.querySelector("#timer-container")
 
 startBtn.addEventListener("click", () => {
   chrome.storage.local.get(["isRunning"], (res) => {
-    chrome.storage.local.set({ isRunning: !res.isRunning }, () => {
-      startBtn.textContent = !res.isRunning ? "Pause Timer" : "Start Timer"
-    })
+    saveToLocalStorage({ isRunning: !res.isRunning })
   })
 })
 
 resetBtn.addEventListener("click", () => {
-  chrome.storage.local.set({ isRunning: false, remainingTime: 3600 }, () => {
-    startBtn.textContent = "Start Timer"
-  })
-  chrome.action.setBadgeText({ text: "" })
+  saveToLocalStorage({ isRunning: false, remainingTime: 3600 })
+  displayBadgeText("")
 })
 
 updatePopup()
 setInterval(updatePopup, 1000)
 
 function updatePopup() {
+  updateStartPauseBtn()
   updateTimerContainer()
   updateTextDescription()
+}
+
+function updateStartPauseBtn() {
+  chrome.storage.local.get(["isRunning"], (res) => {
+    startBtn.textContent = res.isRunning ? "Pause Timer" : "Start Timer"
+  })
 }
 
 function updateTimerContainer() {
@@ -37,12 +40,13 @@ function updateTimerContainer() {
 function updateTextDescription() {
   chrome.storage.local.get(["isGoogleMeetLink", "autoTimerStartsIn"], (res) => {
     if (res["isGoogleMeetLink"]) {
-      let text =
-        res["autoTimerStartsIn"] != undefined
-          ? `Timer starts automatically in ${res["autoTimerStartsIn"]}`
-          : ""
+      let text = ""
+      if ("autoTimerStartsIn" in res && res["autoTimerStartsIn"] > 0) {
+        text = `Timer starts automatically in ${res["autoTimerStartsIn"]}`
+      }
 
-      description.innerHTML = "I hope you have a productive meeting!!\n" + text
+      description.innerHTML =
+        "I hope you have a productive meeting!!<br>" + text
     } else {
       description.innerHTML =
         "Please open a Google Meet page to automatically start the Timer!"
@@ -55,4 +59,21 @@ function updateTime(remainingDurationInS) {
   minutes = Math.floor((remainingDurationInS / 60) % 60)
   seconds = Math.floor(remainingDurationInS % 60)
   return [hours, minutes, seconds]
+}
+
+function createAlarm(name, periodInMinutes) {
+  // `chrome.alarms.create` creates an alarm every second
+  chrome.alarms.create(name, { periodInMinutes })
+}
+
+function clearAlarm(name) {
+  chrome.alarms.clear(name)
+}
+
+function displayBadgeText(text) {
+  chrome.action.setBadgeText({ text })
+}
+
+function saveToLocalStorage(obj) {
+  chrome.storage.local.set(obj)
 }
