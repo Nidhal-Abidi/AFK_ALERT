@@ -13,7 +13,10 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (tab.url && googleMeetPattern.test(tab.url)) {
     // Check if we already have another google meet tab.
     chrome.tabs.query({ currentWindow: true }, (tabs) => {
-      let nbrGoogleMeetTabs = getNbrOfOpenGoogleMeetTabs(tabs)
+      let nbrGoogleMeetTabs = getNbrOfOpenGoogleMeetTabs(
+        tabs,
+        googleMeetPattern
+      )
 
       if (nbrGoogleMeetTabs === 1) {
         saveToLocalStorage({ isGoogleMeetLink: true, autoTimerStartsIn: 30 })
@@ -27,7 +30,10 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     })
   } else {
     chrome.tabs.query({ currentWindow: true }, (tabs) => {
-      let nbrGoogleMeetTabs = getNbrOfOpenGoogleMeetTabs(tabs)
+      let nbrGoogleMeetTabs = getNbrOfOpenGoogleMeetTabs(
+        tabs,
+        googleMeetPattern
+      )
 
       if (nbrGoogleMeetTabs === 0) {
         resetTimer()
@@ -138,10 +144,10 @@ function initializeTimer() {
   )
 }
 
-function getNbrOfOpenGoogleMeetTabs(tabs) {
+function getNbrOfOpenGoogleMeetTabs(tabs, pattern) {
   let nbrGoogleMeetTabs = 0
   for (let tab of tabs) {
-    if (googleMeetPattern.test(tab.url)) {
+    if (pattern.test(tab.url)) {
       nbrGoogleMeetTabs += 1
     }
   }
