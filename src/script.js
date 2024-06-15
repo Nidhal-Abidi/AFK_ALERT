@@ -41,8 +41,14 @@ function updateTextDescription() {
   chrome.storage.local.get(["isGoogleMeetLink", "autoTimerStartsIn"], (res) => {
     if (res["isGoogleMeetLink"]) {
       let text = ""
+      startBtn.classList.remove("hide")
+      resetBtn.classList.remove("hide")
+
       if ("autoTimerStartsIn" in res && res["autoTimerStartsIn"] > 0) {
         text = `Timer starts automatically in ${res["autoTimerStartsIn"]}`
+        // Hide the start & reset btns
+        startBtn.classList.add("hide")
+        resetBtn.classList.add("hide")
       }
 
       description.innerHTML =

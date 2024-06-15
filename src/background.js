@@ -1,24 +1,8 @@
-/* function hasOpenGoogleMeetTab() {
-  chrome.tabs.query({ currentWindow: true }, (tabs) => {
-    const googleMeetPattern = /meet\.google\.com\/(.+)/
-    for (let tab of tabs) {
-      if (googleMeetPattern.test(tab.url)) {
-        return true
-      }
-    }
-    console.log("Google Meet tab is not open!!")
-    return false
-  })
-}
-
-async function hadOpenGoogleMeetTab() {
-  let data = await chrome.storage.local.get(["isGoogleMeetLink"])
-  if ("isGoogleMeetLink" in data && data["isGoogleMeetLink"] === true) {
-    console.log("Opened a google meet tab some time in the past!")
-    return true
-  }
-  return false
-}
+/*Meaning of values stored in local storage:
+  1) isGoogleMeetLink: user opened a google meeting tab.
+  2) autoTimerStartsIn: 30s countdown for automatic timer.
+  3) remainingTime: 1h countdown before taking a break.
+  4) isRunning: signifies that the google meet session is ongoing now.
 */
 
 // `chrome.tabs.onUpdated.addListener` listens for future tab changes, catching newly opened Google Meet tabs.
@@ -27,27 +11,34 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status !== "complete") return
 
   if (tab.url && googleMeetPattern.test(tab.url)) {
-    saveToLocalStorage({ isGoogleMeetLink: true, autoTimerStartsIn: 30 })
-    createAlarm("google-meet", 1 / 60)
+    // Check if we already have another google meet tab.
+    chrome.tabs.query({ currentWindow: true }, (tabs) => {
+      let nbrGoogleMeetTabs = getNbrOfOpenGoogleMeetTabs(tabs)
+
+      if (nbrGoogleMeetTabs === 1) {
+        saveToLocalStorage({ isGoogleMeetLink: true, autoTimerStartsIn: 30 })
+        createAlarm("google-meet", 1 / 60)
+      } else if (nbrGoogleMeetTabs > 1) {
+        resetTimer()
+        this.registration.showNotification(
+          "We can't track more than 1 meeting at a time! Timer is reset"
+        )
+      }
+    })
+  } else {
+    chrome.tabs.query({ currentWindow: true }, (tabs) => {
+      let nbrGoogleMeetTabs = getNbrOfOpenGoogleMeetTabs(tabs)
+
+      if (nbrGoogleMeetTabs === 0) {
+        resetTimer()
+      }
+    })
   }
 })
 
 createAlarm("start-countdown", 1 / 60)
 
 chrome.alarms.onAlarm.addListener((alarm) => {
-  /* if (!hasOpenGoogleMeetTab() && hadOpenGoogleMeetTab()) {
-    // The user has an open Google meet tab then closed it. We should restart the timer
-    console.log("The timer is reset")
-    saveToLocalStorage({
-      remainingTime: 3600,
-      isRunning: false,
-      isGoogleMeetLink: false,
-      autoTimerStartsIn: 30,
-    })
-    clearAlarm("google-meet")
-    clearAlarm("start-countdown")
-  } */
-
   if (alarm.name === "google-meet") {
     chrome.storage.local.get(["autoTimerStartsIn"], (res) => {
       if (!"autoTimerStartsIn" in res) return
@@ -147,10 +138,23 @@ function initializeTimer() {
   )
 }
 
-/*
-Meaning of values stored in local storage:
-  1) isGoogleMeetLink: user opened a google meeting tab.
-  2) autoTimerStartsIn: 30s countdown for automatic timer.
-  3) remainingTime: 1h countdown before taking a break.
-  4) isRunning: signifies that the google meet session is ongoing now.
-*/
+function getNbrOfOpenGoogleMeetTabs(tabs) {
+  let nbrGoogleMeetTabs = 0
+  for (let tab of tabs) {
+    if (googleMeetPattern.test(tab.url)) {
+      nbrGoogleMeetTabs += 1
+    }
+  }
+  return nbrGoogleMeetTabs
+}
+
+function resetTimer() {
+  saveToLocalStorage({
+    isGoogleMeetLink: false,
+    autoTimerStartsIn: 30,
+    isRunning: false,
+    remainingTime: 3600,
+  })
+  displayBadgeText("")
+  clearAlarm("google-meet")
+}
