@@ -1,12 +1,50 @@
+@import url("https://fonts.googleapis.com/css2?family=Playwrite+DE+Grund:wght@100..400&display=swap");
+
 * {
   box-sizing: border-box;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Playwrite DE Grund", cursive;
 }
 
 html {
   width: 350px;
   height: 200px;
   text-align: center;
+}
+
+body {
+  height: 80%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-container {
+  justify-self: flex-end;
+}
+
+.btn {
+  font-size: 1.2rem;
+  border: 2px solid #04aa6d;
+  background-color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition-duration: 0.4s;
+}
+
+.btn:hover {
+  background-color: #04aa6d;
+  color: white;
+}
+
+.btn-reset {
+  border-color: #f44336;
+}
+
+.btn-reset:hover {
+  background-color: #f44336;
+  color: white;
 }
 
 #timer-container {
